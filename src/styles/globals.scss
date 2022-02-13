@@ -4,4 +4,45 @@
   padding: 0;
 }
 
-// TODO
+:root {
+  --background: #1a1d23;
+
+  --heading: #f8f8f8;
+
+  --highlight: #ff57b2;
+
+  --body: #d7d7d7;
+
+  --info: #bbbbbb;
+}
+
+html {
+  @media (max-width: 1080px) {
+    font-size: 93.75%;
+  }
+
+  @media (max-width: 720px) {
+    font-size: 87.5%;
+  }
+}
+
+body {
+  background: var(--background);
+}
+
+body,
+input,
+textarea,
+select,
+button {
+  font-family: 'Inter', sans-serif;
+}
+
+button {
+  cursor: pointer;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
