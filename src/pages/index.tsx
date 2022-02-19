@@ -1,4 +1,5 @@
 import { GetStaticProps } from 'next';
+import Link from 'next/link';
 
 import { getPrismicClient } from '../services/prismic';
 
@@ -37,45 +38,44 @@ export default function Home({ postsPagination }: HomeProps) {
   const [nextPage, setNextPage] = useState(next_page);
 
   async function handleLoadMorePosts(): Promise<void> {
-    try {
-      const response = await fetch(nextPage);
-      const parsedResponse = await response.json();
+    const response = await fetch(nextPage);
+    const parsedResponse = await response.json();
 
-      const { results: r, next_page: n } = parsedResponse;
-      const updatedPosts = [...posts, ...r];
+    const { results: r, next_page: n } = parsedResponse;
+    const updatedPosts = [...posts, ...r];
 
-      setPosts(updatedPosts);
-      setNextPage(n);
-
-    } catch (err) {
-      console.log(err);
-
-    }
+    setPosts(updatedPosts);
+    setNextPage(n);
   }
   
   return (
     <main className={commonStyles.container}>
         {posts.map(post => (
-          <div key={post?.uid} className={styles.post}>
-            <a>
-              <h2>{post.data.title}</h2>
-              <p>{post.data.subtitle}</p>
-              <div className={styles.info}>
-                <time>
-                <FiCalendar />
-                  {format(
-                    new Date(post.first_publication_date),
-                    'dd MMM yyyy',
-                    { locale: ptBR }
-                  )}
-                </time>
-                <span className={styles.author}>
-                  <FiUser />
-                  {post.data.author}
-                </span>
-              </div>
-            </a>
-          </div>
+          <section 
+            key={post?.uid} 
+            className={styles.post}
+          >
+            <Link href={`/post/${post?.uid}`}>
+              <a>
+                <h2>{post.data.title}</h2>
+                <p>{post.data.subtitle}</p>
+                <div className={styles.info}>
+                  <time>
+                  <FiCalendar />
+                    {format(
+                      new Date(post.first_publication_date),
+                      'dd MMM yyyy',
+                      { locale: ptBR }
+                    )}
+                  </time>
+                  <span className={styles.author}>
+                    <FiUser />
+                    {post.data.author}
+                  </span>
+                </div>
+              </a>
+            </Link>
+          </section>
         ))}
         <button 
           className={styles.loadMore}
@@ -102,6 +102,7 @@ export const getStaticProps = async () => {
         results: postsResponse.results,
         next_page: postsResponse.next_page
       }
-    }
+    },
+    revalidate: 60 * 30
   }
 };
