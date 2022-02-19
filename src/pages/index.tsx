@@ -49,13 +49,14 @@ export default function Home({ postsPagination }: HomeProps) {
 
     } catch (err) {
       console.log(err);
+
     }
   }
   
   return (
     <main className={commonStyles.container}>
         {posts.map(post => (
-          <div key={post?.uid}>
+          <div key={post?.uid} className={styles.post}>
             <a>
               <h2>{post.data.title}</h2>
               <p>{post.data.subtitle}</p>
@@ -76,6 +77,12 @@ export default function Home({ postsPagination }: HomeProps) {
             </a>
           </div>
         ))}
+        <button 
+          className={styles.loadMore}
+          onClick={handleLoadMorePosts}
+        >
+          Carregar mais posts
+        </button>
     </main>
   );
 }
