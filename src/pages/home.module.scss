@@ -13,16 +13,13 @@
     display: flex;
     flex-direction: row;
     align-items: center;
+    gap: 24px;
 
     time, .author {
         display: flex;
         flex-direction: row;
         align-items: center;
         gap: 8px;
-    }
-
-    time {
-        margin-right: 24px;
     }
 }
 

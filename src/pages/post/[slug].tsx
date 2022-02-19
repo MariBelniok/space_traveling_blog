@@ -8,6 +8,8 @@ import Prismic from '@prismicio/client';
 import commonStyles from '../../styles/common.module.scss';
 import styles from './post.module.scss';
 import { RichText } from 'prismic-dom';
+import { FiCalendar, FiUser, FiClock } from 'react-icons/fi';
+import { useRouter } from 'next/router';
 
 interface Post {
   first_publication_date: string | null;
@@ -31,14 +33,54 @@ interface PostProps {
 }
 
 export default function Post({ post }: PostProps) {
+  const { isFallback } = useRouter();
+  
   return (
-    <>
-      <h1> oi </h1>
-    </>
+    <main className={styles.postContainer}>
+      <img src={post.data.banner.url} alt={post.data.title} />
+
+      {isFallback ? (
+        <article>
+          <h1>Carregando...</h1>
+        </article>
+      ) : (
+      <article className={commonStyles.container}>
+        <h1> {post.data.title} </h1>
+        <div className={styles.info}>
+          <time>
+            <FiCalendar />
+            {format(
+              new Date(post.first_publication_date),
+              'dd MMM yyyy',
+              { locale: ptBR }
+            )}
+          </time>
+          <span className={styles.author}>
+            <FiUser />
+            {post.data.author}
+          </span>
+          <time>
+            <FiClock />
+            4 min
+          </time>
+        </div>
+
+        {post.data.content.map((content, index) => (
+          <section key={index}>
+            <h2>{content.heading}</h2>
+            <div
+              className={styles.postBody}
+              dangerouslySetInnerHTML={{ __html: RichText.asHtml(content.body) }}
+            />
+          </section>
+        ))}
+      </article>
+      )}
+    </main>
   )
 }
 
-export const getStaticPaths = async () => {
+export const getStaticPaths: GetStaticPaths = async () => {
   const prismic = getPrismicClient();
   const posts = await prismic.query([
     Prismic.predicates.at('document.type', 'posts')
@@ -47,34 +89,19 @@ export const getStaticPaths = async () => {
   });
 
   return {
-    paths: posts,
-    fallback: 'blocking'
+    paths: posts.results.map(p => ({ params: { slug: p.uid } })),
+    fallback: true
   }
 };
 
-export const getStaticProps = async ({ params }) => {
+export const getStaticProps: GetStaticProps = async ({ params }) => {
   const { slug } = params;
   const prismic = getPrismicClient();
   const response: any = await prismic.getByUID('posts', String(slug), {});
 
-  const post: Post = {
-    first_publication_date: format(new Date(response.last_publication_date), 'dd MMM yyyy', { locale: ptBR }),
-    data: {
-      author: response.data.author,
-      banner: response.data.banner,
-      content: [{
-        heading: RichText.asHtml(response.data.content.heading),
-        body: [{
-          text: RichText.asHtml(response.data.content.text),
-        }]
-      }],
-      title: RichText.asText(response.data.title)
-    }
-  }
-
   return {
     props: {
-      post
+      post: response
     },
     revalidate: 60 * 30
   }

@@ -47,47 +47,49 @@ export default function Home({ postsPagination }: HomeProps) {
     setPosts(updatedPosts);
     setNextPage(n);
   }
-  
+
   return (
     <main className={commonStyles.container}>
-        {posts.map(post => (
-          <section 
-            key={post?.uid} 
-            className={styles.post}
-          >
-            <Link href={`/post/${post?.uid}`}>
-              <a>
-                <h2>{post.data.title}</h2>
-                <p>{post.data.subtitle}</p>
-                <div className={styles.info}>
-                  <time>
+      {posts.map(post => (
+        <section
+          key={post?.uid}
+          className={styles.post}
+        >
+          <Link href={`/post/${post?.uid}`}>
+            <a>
+              <h2>{post.data.title}</h2>
+              <p>{post.data.subtitle}</p>
+              <div className={styles.info}>
+                <time>
                   <FiCalendar />
-                    {format(
-                      new Date(post.first_publication_date),
-                      'dd MMM yyyy',
-                      { locale: ptBR }
-                    )}
-                  </time>
-                  <span className={styles.author}>
-                    <FiUser />
-                    {post.data.author}
-                  </span>
-                </div>
-              </a>
-            </Link>
-          </section>
-        ))}
-        <button 
+                  {format(
+                    new Date(post.first_publication_date),
+                    'dd MMM yyyy',
+                    { locale: ptBR }
+                  )}
+                </time>
+                <span className={styles.author}>
+                  <FiUser />
+                  {post.data.author}
+                </span>
+              </div>
+            </a>
+          </Link>
+        </section>
+      ))}
+      {nextPage && (
+        <button
           className={styles.loadMore}
           onClick={handleLoadMorePosts}
         >
           Carregar mais posts
         </button>
+      )}
     </main>
   );
 }
 
-export const getStaticProps = async () => {
+export const getStaticProps: GetStaticProps = async () => {
   const prismic = getPrismicClient();
   const postsResponse: any = await prismic.query([
     Prismic.predicates.at('document.type', 'posts')
